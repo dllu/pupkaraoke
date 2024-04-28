@@ -123,8 +123,18 @@ function fetchVideoDetails(videoId, requester) {
 }
 
 function extractVideoID(url) {
-  const urlParams = new URLSearchParams(new URL(url).search);
-  return urlParams.get('v');
+    let videoId = null;
+    if (url.includes('youtu.be')) {
+        // Handle youtu.be short URLs
+        videoId = url.split('youtu.be/')[1];
+        // Remove any additional parameters
+        videoId = videoId.split('?')[0];
+    } else if (url.includes('youtube.com')) {
+        // Handle regular YouTube URLs
+        const urlParams = new URLSearchParams(new URL(url).search);
+        videoId = urlParams.get('v');
+    }
+    return videoId;
 }
 
 window.addEventListener('resize', updatePlayerSize);
