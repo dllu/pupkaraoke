@@ -23,8 +23,7 @@ button {
 
   width: 100px;
   text-align: center;
-  margin-top: 20px;
-  margin-left: 220px;
+  margin: 20px;
   color: #eee;
   font-family: monospace;
 }

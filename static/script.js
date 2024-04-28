@@ -2,7 +2,7 @@ var player;
 var currentQueue = [];
 var currentVideoIndex = 0;
 var lastQueueLength = 0;
-var apiKey = 'your_api_key'';
+var apiKey = 'your_api_key';
 var isPlaying = false;
 
 function onYouTubeIframeAPIReady() {
@@ -77,35 +77,35 @@ function updateQueueDisplay() {
   let queueDisplay = document.getElementById('queue');
   queueDisplay.innerHTML = '';  // Clear existing entries
 
-  let currentSongNode = document.createElement('th');
-  node.innerHTML = `
-    <td></td>
-    <td class="videoname">now playing</td>
-    <td class="requester">requester</td>
-    `;
+  if (currentVideoIndex > 0) {
+    let currentSong = currentQueue[currentVideoIndex - 1];
+    fetchVideoDetails(extractVideoID(currentSong[1]), currentSong[0])
+      .then(videoDetails => {
+        let currentSongNode = document.createElement('tr');
+        currentSongNode.innerHTML = `
+          <th> </th>
+          <th class="videoname">now playing</th>
+          <th class="requester">requester</th>
+          `;
+        queueDisplay.appendChild(currentSongNode);
 
-  queueDisplay.appendChild(currentSongNode);
-  let currentSong = currentQueue[currentVideoIndex];
-  fetchVideoDetails(extractVideoId(currentSongs[1]), currentSong[0])
-    .then(videoDetails => {
-      console.log('Video details:', videoDetails);
-      let node = document.createElement('tr');
-      node.innerHTML = `
-        <td><img src="${videoDetails.thumbnail}"></td>
-        <td class="videoname">${videoDetails.title}</td>
-        <td class="requester">${videoDetails.requester}</td>
-        `;
-      queueDisplay.appendChild(node);
-    });
+        let node = document.createElement('tr');
+        node.innerHTML = `
+          <td><img src="${videoDetails.thumbnail}"></td>
+          <td class="videoname">${videoDetails.title}</td>
+          <td class="requester">${videoDetails.requester}</td>
+          `;
+        queueDisplay.appendChild(node);
 
-  let nextSongNode = document.createElement('th');
-  node.innerHTML = `
-    <td></td>
-    <td class="videoname">up next</td>
-    <td class="requester">requester</td>
-    `;
-
-  queueDisplay.appendChild(nextSongNode);
+        let nextSongNode = document.createElement('tr');
+        nextSongNode.innerHTML = `
+          <th> </th>
+          <th class="videoname">up next</th>
+          <th class="requester">requester</th>
+          `;
+        queueDisplay.appendChild(nextSongNode);
+      });
+  }
 
   // Create an array of promises for fetching video details
   let promises = currentQueue.slice(currentVideoIndex).map(videoURL => {
@@ -140,43 +140,43 @@ function fetchVideoDetails(videoId, requester) {
     return Promise.resolve(videoCache[cacheKey]);
   }
   return new Promise((resolve, reject) => {
-  let url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet`;
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      if (data.items.length > 0) {
-        let item = data.items[0];
-        const videoDetails = {
-          title: item.snippet.title,
-          thumbnail: item.snippet.thumbnails.default.url,
-          requester: requester
-        };
+    let url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet`;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.items.length > 0) {
+          let item = data.items[0];
+          const videoDetails = {
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails.default.url,
+            requester: requester
+          };
 
-        // Cache the fetched result using the unique cacheKey
-        videoCache[cacheKey] = videoDetails;
+          // Cache the fetched result using the unique cacheKey
+          videoCache[cacheKey] = videoDetails;
 
-        resolve(videoDetails);
-      } else {
-        reject('No video details found');
-      }
-    })
-    .catch(error => reject(error));
+          resolve(videoDetails);
+        } else {
+          reject('No video details found');
+        }
+      })
+      .catch(error => reject(error));
   });
 }
 
 function extractVideoID(url) {
-    let videoId = null;
-    if (url.includes('youtu.be')) {
-        // Handle youtu.be short URLs
-        videoId = url.split('youtu.be/')[1];
-        // Remove any additional parameters
-        videoId = videoId.split('?')[0];
-    } else if (url.includes('youtube.com')) {
-        // Handle regular YouTube URLs
-        const urlParams = new URLSearchParams(new URL(url).search);
-        videoId = urlParams.get('v');
-    }
-    return videoId;
+  let videoId = null;
+  if (url.includes('youtu.be')) {
+    // Handle youtu.be short URLs
+    videoId = url.split('youtu.be/')[1];
+    // Remove any additional parameters
+    videoId = videoId.split('?')[0];
+  } else if (url.includes('youtube.com')) {
+    // Handle regular YouTube URLs
+    const urlParams = new URLSearchParams(new URL(url).search);
+    videoId = urlParams.get('v');
+  }
+  return videoId;
 }
 
 window.addEventListener('resize', updatePlayerSize);
