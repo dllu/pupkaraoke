@@ -17,19 +17,53 @@
         var name = document.getElementById('name').value;
         localStorage.setItem('name', name);
       }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('songform').addEventListener('submit', function(e) {
+          e.preventDefault(); // Stop the form from submitting normally
+
+          var formData = new FormData(this); // Create a FormData object from the form
+
+          fetch('/enqueue', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => {
+            if (response.ok) {
+              return response.text(); // or response.json() if server responds with JSON
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(data => {
+            updateMessageDisplay('success');
+          })
+          .catch(error => {
+            updateMessageDisplay('fail');
+          });
+
+          saveName(); // Save the name in local storage
+        });
+      });
+      function updateMessageDisplay(status) {
+        const messageDiv = document.getElementById('successMessage');
+        messageDiv.className = ''; // Reset class
+        messageDiv.textContent = status === 'success' ? 'success' : 'failed to submit';
+        messageDiv.classList.add(status); // Add the appropriate class based on the operation status
+      }
     </script>
   </head>
   <body onload="loadName()">
     <div class="padding">
       <h1>submit a song</h1>
       <h1><img src="{{ url_for('static', filename='microphone.png') }}"><img src="{{ url_for('static', filename='awoo.png') }}"></h1>
-      <form action="/enqueue" method="post" onsubmit="saveName()">
+      <form id="songform" action="/enqueue" method="post" onsubmit="saveName()">
         <label for="name">Your name</label>
         <input type="text" id="name" name="name" placeholder="" required>
         <label for="song_url">Youtube URL</label>
         <input type="text" name="song_url" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" required>
         <button type="submit">submit</button>
       </form>
+      <div id="successMessage" class="hide"></div>
     </div>
   </body>
 </html>

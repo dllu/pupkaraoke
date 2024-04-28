@@ -43,6 +43,20 @@ input[type=text] {
   font-family: monospace;
 }
 
+.success {
+  display: block;
+  background: #141;
+}
+
+.fail {
+  display: block;
+  color: #411;
+}
+
+.hide {
+  display: none;
+}
+
 h1 img {
   height: 80px;
 }
@@ -76,5 +90,10 @@ td.videoname {
 
 td.requester {
   width: 80px;
+}
+
+#successMessage {
+  margin: 10px auto;
+  padding: 10px;
 }
 
