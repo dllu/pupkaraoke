@@ -29,6 +29,7 @@
             body: formData
           })
           .then(response => {
+            document.getElementById('song_url').value = '';
             if (response.ok) {
               return response.text(); // or response.json() if server responds with JSON
             }
@@ -60,7 +61,7 @@
         <label for="name">Your name</label>
         <input type="text" id="name" name="name" placeholder="" required>
         <label for="song_url">Youtube URL</label>
-        <input type="text" name="song_url" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" required>
+        <input type="text" id="song_url" name="song_url" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" required>
         <button type="submit">submit</button>
       </form>
       <div id="successMessage" class="hide"></div>

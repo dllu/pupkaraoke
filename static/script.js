@@ -77,6 +77,36 @@ function updateQueueDisplay() {
   let queueDisplay = document.getElementById('queue');
   queueDisplay.innerHTML = '';  // Clear existing entries
 
+  let currentSongNode = document.createElement('th');
+  node.innerHTML = `
+    <td></td>
+    <td class="videoname">now playing</td>
+    <td class="requester">requester</td>
+    `;
+
+  queueDisplay.appendChild(currentSongNode);
+  let currentSong = currentQueue[currentVideoIndex];
+  fetchVideoDetails(extractVideoId(currentSongs[1]), currentSong[0])
+    .then(videoDetails => {
+      console.log('Video details:', videoDetails);
+      let node = document.createElement('tr');
+      node.innerHTML = `
+        <td><img src="${videoDetails.thumbnail}"></td>
+        <td class="videoname">${videoDetails.title}</td>
+        <td class="requester">${videoDetails.requester}</td>
+        `;
+      queueDisplay.appendChild(node);
+    });
+
+  let nextSongNode = document.createElement('th');
+  node.innerHTML = `
+    <td></td>
+    <td class="videoname">up next</td>
+    <td class="requester">requester</td>
+    `;
+
+  queueDisplay.appendChild(nextSongNode);
+
   // Create an array of promises for fetching video details
   let promises = currentQueue.slice(currentVideoIndex).map(videoURL => {
     let videoId = extractVideoID(videoURL[1]);
@@ -100,25 +130,37 @@ function updateQueueDisplay() {
       console.error('Failed to fetch video details:', error);
     });
 }
+const videoCache = {};
 
 function fetchVideoDetails(videoId, requester) {
+  const cacheKey = `${videoId}_${requester}`;
+
+  // Check if the response for these parameters is already cached
+  if (videoCache[cacheKey]) {
+    return Promise.resolve(videoCache[cacheKey]);
+  }
   return new Promise((resolve, reject) => {
-    let url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet`;
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        if (data.items.length > 0) {
-          let item = data.items[0];
-          resolve({
-            title: item.snippet.title,
-            thumbnail: item.snippet.thumbnails.default.url,
-            requester: requester
-          });
-        } else {
-          reject('No video details found');
-        }
-      })
-      .catch(error => reject(error));
+  let url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&part=snippet`;
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      if (data.items.length > 0) {
+        let item = data.items[0];
+        const videoDetails = {
+          title: item.snippet.title,
+          thumbnail: item.snippet.thumbnails.default.url,
+          requester: requester
+        };
+
+        // Cache the fetched result using the unique cacheKey
+        videoCache[cacheKey] = videoDetails;
+
+        resolve(videoDetails);
+      } else {
+        reject('No video details found');
+      }
+    })
+    .catch(error => reject(error));
   });
 }
 
