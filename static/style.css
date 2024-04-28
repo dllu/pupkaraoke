@@ -10,7 +10,7 @@ body {
   border: 0;
 }
 .padding {
-  width: 520px;
+  width: 340px;
   margin: 10px auto;
 }
 
@@ -21,7 +21,7 @@ button {
   width: 120px;
   text-align: center;
   margin-top: 20px;
-  margin-left: 400px;
+  margin-left: 220px;
   color: #eee;
   font-family: monospace;
 }
@@ -36,7 +36,7 @@ label {
 }
 
 input[type=text] {
-  width: 500px;
+  width: 320px;
   padding: 10px;
   background: #111;
   color: #eee;
