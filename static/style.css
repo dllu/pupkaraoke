@@ -1,0 +1,80 @@
+body {
+  background: #000;
+  color: #eee;
+  font-family: monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.padding {
+  width: 520px;
+  margin: 10px auto;
+}
+
+button {
+  background: #790096;
+  padding: 10px;
+
+  width: 120px;
+  text-align: center;
+  margin-top: 20px;
+  margin-left: 400px;
+  color: #eee;
+  font-family: monospace;
+}
+
+button:hover {
+  background: #590076;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+}
+
+input[type=text] {
+  width: 500px;
+  padding: 10px;
+  background: #111;
+  color: #eee;
+  font-family: monospace;
+}
+
+h1 img {
+  height: 80px;
+}
+
+#qr {
+  display: block;
+  width: 200px;
+  margin: 0 auto;
+}
+
+#nextup {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 400px;
+}
+
+table {
+  width: 400px;
+}
+
+td>img {
+  width: 120px;
+  height: 90px;
+}
+
+
+td.videoname {
+  width: 200px;
+}
+
+td.requester {
+  width: 80px;
+}
+
