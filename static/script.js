@@ -5,46 +5,18 @@ var lastQueueLength = 0;
 var apiKey = 'your_api_key';
 var isPlaying = false;
 
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('player', {
-    height: '480',
-    width: '720',
-    videoId: '',
-    events: {
-      'onReady': onPlayerReady,
-      'onStateChange': onPlayerStateChange
-    },
-    playerVars: {
-      'autoplay': 1,  // Enable autoplay by setting this to 1.
-      'controls': 1,  // Show player controls.
-      'rel': 0,       // Do not show related videos when playback ends.
-      'modestbranding': 1, // Limit YouTube branding.
-      'iv_load_policy': 3 // Disable annotations.
-    },
-  });
-}
 
 function updatePlayerSize() {
   var screenWidth = window.innerWidth;
   var playerWidth = screenWidth - 400;  // Subtract 400px from the screen width
   var playerHeight = playerWidth * 9 / 16;  // Maintain a 16:9 aspect ratio
 
-  if (player && player.setSize) {
-    player.setSize(playerWidth, playerHeight);
+  if (player) {
+    player.style.width = playerWidth + 'px';
+    player.style.height = playerHeight + 'px';
   }
 }
 
-function onPlayerReady(event) {
-  setInterval(checkQueue, 3000); // Poll every 5 seconds
-  player.playVideo();
-  updatePlayerSize();
-}
-
-function onPlayerStateChange(event) {
-  if (event.data == YT.PlayerState.ENDED) {
-    isPlaying = playNextSong();
-  }
-}
 
 function checkQueue() {
   fetch('/queue')
@@ -62,9 +34,13 @@ function checkQueue() {
 }
 
 function playNextSong() {
-  if (currentQueue.length > 0 && currentVideoIndex < currentQueue.length) {
+  if (currentQueue.length > currentVideoIndex) {
     isPlaying = true;
-    player.loadVideoById(extractVideoID(currentQueue[currentVideoIndex][1]));
+    var videoId = extractVideoID(currentQueue[currentVideoIndex][1]);
+    var videoSrc = '/static/videos/' + videoId + '.mp4';
+    player.src = videoSrc;
+    player.load();
+    player.play();
     currentVideoIndex++;
     updateQueueDisplay();
     return true;
@@ -180,9 +156,19 @@ function extractVideoID(url) {
 }
 
 window.addEventListener('resize', updatePlayerSize);
-window.setInterval(function() {
-  if (player && player.getPlayerState() < 1 && !isPlaying) {
-    console.log(player.getPlayerState());
+// Initialize player and queue on page load
+document.addEventListener('DOMContentLoaded', function() {
+  player = document.getElementById('player');
+  window.addEventListener('resize', updatePlayerSize);
+  updatePlayerSize();
+  fetch('/queue').then(res => res.json()).then(data => {
+    currentQueue = data;
+    lastQueueLength = data.length;
+    updateQueueDisplay();
     playNextSong();
-  }
-}, 1000);
+  });
+  setInterval(checkQueue, 3000);
+  player.addEventListener('ended', function() {
+    isPlaying = playNextSong();
+  });
+});
